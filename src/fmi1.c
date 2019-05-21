@@ -429,8 +429,7 @@ fmiComponent fmiInstantiateSlave(fmiString  instanceName, fmiString GUID,
 }
 
 fmiStatus fmiInitializeSlave(fmiComponent c, fmiReal tStart, fmiBoolean StopTimeDefined, fmiReal tStop) {
-    init(c);
-    return fmiOK;
+    return init(c);
 }
 
 fmiStatus fmiTerminateSlave(fmiComponent c) {
@@ -555,7 +554,15 @@ fmiComponent fmiInstantiateModel(fmiString instanceName, fmiString GUID,  fmiCal
 }
 
 fmiStatus fmiInitialize(fmiComponent c, fmiBoolean toleranceControlled, fmiReal relativeTolerance, fmiEventInfo* eventInfo) {
-    return init(c);
+    ModelInstance* comp = (ModelInstance *)c;
+    fmiStatus status = init(c);
+    eventInfo->iterationConverged  = fmiTrue;
+    eventInfo->stateValueReferencesChanged = fmiFalse;
+    eventInfo->stateValuesChanged = fmiFalse;
+    eventInfo->terminateSimulation = fmiFalse;
+    eventInfo->upcomingTimeEvent = comp->nextEventTimeDefined;
+    eventInfo->nextEventTime = comp->nextEventTime;
+    return status;
 }
 
 fmiStatus fmiSetTime(fmiComponent c, fmiReal time) {
